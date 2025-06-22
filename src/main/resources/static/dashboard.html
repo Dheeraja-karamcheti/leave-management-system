@@ -1,0 +1,57 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Apply Leave</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h2>Apply for Leave</h2>
+<form id="leaveForm">
+    <label for="startDate">Start Date:</label>
+    <input type="date" id="startDate" required><br><br>
+
+    <label for="endDate">End Date:</label>
+    <input type="date" id="endDate" required><br><br>
+
+    <label for="reason">Reason:</label>
+    <textarea id="reason" required></textarea><br><br>
+
+    <button type="submit">Apply</button>
+</form>
+<p id="message"></p>
+
+<script>
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+
+    if (!user) {
+        alert("Session expired. Please log in again.");
+        window.location.href = "index.html";
+    }
+
+    document.getElementById('leaveForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const leave = {
+            userId: user.userId,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+            reason: document.getElementById('reason').value
+        };
+
+        const response = await fetch('http://localhost:8080/api/leaves/apply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(leave)
+        });
+
+        if (response.ok) {
+            document.getElementById('message').innerText = "Leave applied successfully!";
+        } else {
+            document.getElementById('message').innerText = "Error applying leave.";
+        }
+    });
+</script>
+
+</body>
+</html>

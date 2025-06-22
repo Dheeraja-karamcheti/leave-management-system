@@ -1,0 +1,61 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h2>Leave Requests</h2>
+<table border="1" id="leaveTable">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>User ID</th>
+    <th>Start</th>
+    <th>End</th>
+    <th>Reason</th>
+    <th>Status</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  async function loadLeaves() {
+    const response = await fetch('http://localhost:8080/api/leaves/all');
+    const leaves = await response.json();
+
+    const tbody = document.querySelector("#leaveTable tbody");
+    tbody.innerHTML = "";
+
+    leaves.forEach(leave => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+                    <td>${leave.id}</td>
+                    <td>${leave.userId}</td>
+                    <td>${leave.startDate}</td>
+                    <td>${leave.endDate}</td>
+                    <td>${leave.reason}</td>
+                    <td>${leave.status}</td>
+                    <td>
+                        <button onclick="updateStatus(${leave.id}, 'APPROVED')">Approve</button>
+                        <button onclick="updateStatus(${leave.id}, 'REJECTED')">Reject</button>
+                    </td>
+                `;
+      tbody.appendChild(row);
+    });
+  }
+
+  async function updateStatus(id, status) {
+    await fetch(`http://localhost:8080/api/leaves/update/${id}?status=${status}`, {
+      method: 'PUT'
+    });
+    loadLeaves();
+  }
+
+  loadLeaves();
+</script>
+</body>
+</html>
